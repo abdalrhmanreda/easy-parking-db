@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class authController extends Controller
 {
@@ -22,12 +23,12 @@ class authController extends Controller
             'name'=>$fields['name'],
             'email'=>$fields['email'],
             'phone'=>$fields['phone'],
+            'password'=>bcrypt($fields['password']),
+            'userImg'=>'any',
             'role'=>$fields['role'],
             'carNum'=>$fields['carNum'],
             'location'=>$fields['location'],
             'license'=>$fields['license'],
-            'userImg'=>'any',
-            'password'=>bcrypt($fields['password'])
         ]);
         $token = $user->createToken("myToken")->plainTextToken;
 
@@ -45,8 +46,8 @@ class authController extends Controller
                 "identify"=>"required|numeric",
                 "password"=>"required|string"
             ]);
-    
-            //check phone number exists or not  
+
+            //check phone number exists or not
             $user= User::where('phone',$fields['identify'])->first();
             if(!$user || ! Hash::check($fields['password'],$user->password)) {
             abort (403,'Invalid Credentials');
@@ -61,7 +62,7 @@ class authController extends Controller
             return Response()->json(['status'=>'success','data'=>$response], 200 );
         }else{
 
-       
+
             $fields = $request->validate([
                 "identify"=>"required|email|string",
                 "password"=>"required|string"
